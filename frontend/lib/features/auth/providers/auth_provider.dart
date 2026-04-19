@@ -17,6 +17,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._repository) : super(const AuthState());
 
+  Future<void> loadSavedAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedToken = prefs.getString('auth_token');
+
+    state = state.copyWith(
+      token: savedToken,
+      isLoading: false,
+    );
+  }
+
   Future<void> register({
     required String fullName,
     required String username,
@@ -97,5 +107,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: e.toString(),
       );
     }
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+
+    state = const AuthState();
   }
 }
